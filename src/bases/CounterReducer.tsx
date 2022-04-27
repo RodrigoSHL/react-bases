@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-
+import React, { useReducer } from "react";
 interface CounterState {
   counter: number;
   previous: number;
@@ -7,21 +6,54 @@ interface CounterState {
 }
 
 const INITIAL_STATE: CounterState = {
-  counter: 0,
-  previous: 0,
-  changes: 0,
+  counter: 10,
+  previous: 20,
+  changes: 20,
 };
 
-const CounterReducerComponent = ({ initialValue = 0 }: Props) => {
-  const [counter, setCounter] = useState(initialValue);
+type CounterAction = 
+| { type: 'increaseBy', payload: {value:number;}}
+| { type: 'reset'}
 
-  const handleClick = () => {
-    return setCounter((prev) => prev + 1);
+const counterReducer = (state:CounterState, action:CounterAction): CounterState => {
+  switch (action.type) {
+    case "reset":
+      return {
+        counter: 0,
+        previous: 0,
+        changes: 0,
+      };
+      case "increaseBy":
+        
+        return {
+          counter: state.counter + action.payload.value,
+          previous: state.counter,
+          changes: state.changes +1,
+        };
+    default:
+      return state;
+  }
+}
+
+const CounterReducerComponent = () => {
+  const [counterState, dispatch] = useReducer(counterReducer, INITIAL_STATE);
+  const handleReset = () => {
+    dispatch({ type: 'reset' });
+  };
+
+  const handleIncrement = (value:number) => {
+    dispatch({ type: 'increaseBy', payload: {value: value} });
   };
   return (
     <>
-      <h1> CounterReducer: {counter}</h1>
-      <button onClick={() => handleClick()}>+1</button>
+      <h1>Counter Reducer</h1>
+      <pre>
+      { JSON.stringify( counterState, null, 2 ) }
+      </pre>
+      <button onClick={() => handleReset()}>Reset</button>
+      <button onClick={() => handleIncrement(1)}>+1</button>
+      <button onClick={() => handleIncrement(2)}>+2</button>
+      <button onClick={() => handleIncrement(3)}>+3</button>
     </>
   );
 };
